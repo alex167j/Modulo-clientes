@@ -28,6 +28,9 @@ func (s *ClienteStore) Create(c models.Cliente) (models.Cliente, error) {
 	if c.Nombre == "" {
 		return models.Cliente{}, errors.New("el nombre es obligatorio")
 	}
+	if c.Cedula == "" {
+		return models.Cliente{}, errors.New("la cedula es obligatoria")
+	}
 
 	c.ID = s.nextID
 	c.FechaRegistro = time.Now().UTC()
