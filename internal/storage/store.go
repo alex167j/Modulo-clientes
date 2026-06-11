@@ -46,3 +46,46 @@ func (s *ClienteStore) GetAll() []models.Cliente {
 	}
 	return result
 }
+
+func (s *ClienteStore) GetByID(id int) (models.Cliente, error) {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
+
+	c, ok := s.clientes[id]
+	if !ok {
+		return models.Cliente{}, errors.New("cliente no encontrado")
+	}
+	return c, nil
+}
+
+func (s *ClienteStore) Update(id int, c models.Cliente) (models.Cliente, error) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	existing, ok := s.clientes[id]
+	if !ok {
+		return models.Cliente{}, errors.New("cliente no encontrado")
+	}
+	if c.Nombre == "" {
+		return models.Cliente{}, errors.New("el nombre es obligatorio")
+	}
+
+	existing.Nombre = c.Nombre
+	existing.Cedula = c.Cedula
+	existing.Email = c.Email
+	existing.Telefono = c.Telefono
+	existing.Membresia = c.Membresia
+	s.clientes[id] = existing
+	return existing, nil
+}
+
+func (s *ClienteStore) Delete(id int) error {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	if _, ok := s.clientes[id]; !ok {
+		return errors.New("cliente no encontrado")
+	}
+	delete(s.clientes, id)
+	return nil
+}
